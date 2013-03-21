@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'ISHTTPOperationMockifier' target in the 'ISHTTPOperationMockifier' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+#endif

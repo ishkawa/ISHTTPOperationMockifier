@@ -1,0 +1,3 @@
+[submodule "ISHTTPOperation"]
+	path = ISHTTPOperation
+	url = git@github.com:ishkawa/ISHTTPOperation.git
