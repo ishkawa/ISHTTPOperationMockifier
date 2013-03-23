@@ -15,15 +15,15 @@ static void ISSwizzleInstanceMethod(Class c, SEL original, SEL alternative)
     }
 }
 
-static char *const TRHTTPMockStatusCodeKey = "TRHTTPMockStatusCodeKey";
-static char *const TRHTTPMockObjectKey     = "TRHTTPMockObjectKey";
-static char *const TRHTTPMockErrorKey      = "TRHTTPMockErrorKey";
+static char *const ISHTTPOperationMockStatusCodeKey = "ISHTTPOperationMockStatusCodeKey";
+static char *const ISHTTPOperationMockObjectKey     = "ISHTTPOperationMockObjectKey";
+static char *const ISHTTPOperationMockErrorKey      = "ISHTTPOperationMockErrorKey";
 
 @implementation ISHTTPOperation (Mock)
 
 - (NSInteger)statusCode
 {
-    return [objc_getAssociatedObject([self class], TRHTTPMockStatusCodeKey) integerValue];
+    return [objc_getAssociatedObject([self class], ISHTTPOperationMockStatusCodeKey) integerValue];
 }
 
 
@@ -31,10 +31,9 @@ static char *const TRHTTPMockErrorKey      = "TRHTTPMockErrorKey";
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         Class class = [ISHTTPOperation class];
-        NSInteger statusCode = [objc_getAssociatedObject(class, TRHTTPMockStatusCodeKey) integerValue];
-        id object = objc_getAssociatedObject(class, TRHTTPMockObjectKey);
-        NSError *error = objc_getAssociatedObject(class, TRHTTPMockErrorKey);
-        NSLog(@"ccc2: %@", class);
+        NSInteger statusCode = [objc_getAssociatedObject(class, ISHTTPOperationMockStatusCodeKey) integerValue];
+        id object = objc_getAssociatedObject(class, ISHTTPOperationMockObjectKey);
+        NSError *error = objc_getAssociatedObject(class, ISHTTPOperationMockErrorKey);
         
         NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:self.request.URL
                                                                   statusCode:statusCode
@@ -80,9 +79,9 @@ static char *const TRHTTPMockErrorKey      = "TRHTTPMockErrorKey";
     }
     
     Class class = [ISHTTPOperation class];
-    objc_setAssociatedObject(class, TRHTTPMockStatusCodeKey, @(self.statusCode), OBJC_ASSOCIATION_RETAIN);
-    objc_setAssociatedObject(class, TRHTTPMockObjectKey, self.object, OBJC_ASSOCIATION_RETAIN);
-    objc_setAssociatedObject(class, TRHTTPMockErrorKey, self.error, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(class, ISHTTPOperationMockStatusCodeKey, @(self.statusCode), OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(class, ISHTTPOperationMockObjectKey, self.object, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(class, ISHTTPOperationMockErrorKey, self.error, OBJC_ASSOCIATION_RETAIN);
     
     ISSwizzleInstanceMethod(class, @selector(main), @selector(_main));
     self.mockified = YES;
@@ -95,9 +94,9 @@ static char *const TRHTTPMockErrorKey      = "TRHTTPMockErrorKey";
     }
     
     Class class = [ISHTTPOperation class];
-    objc_setAssociatedObject(class, TRHTTPMockStatusCodeKey, nil, OBJC_ASSOCIATION_RETAIN);
-    objc_setAssociatedObject(class, TRHTTPMockObjectKey, nil, OBJC_ASSOCIATION_RETAIN);
-    objc_setAssociatedObject(class, TRHTTPMockErrorKey, nil, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(class, ISHTTPOperationMockStatusCodeKey, nil, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(class, ISHTTPOperationMockObjectKey, nil, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(class, ISHTTPOperationMockErrorKey, nil, OBJC_ASSOCIATION_RETAIN);
     
     ISSwizzleInstanceMethod(class, @selector(main), @selector(_main));
     self.mockified = NO;
