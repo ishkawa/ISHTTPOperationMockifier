@@ -8,6 +8,7 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '4.0'
   s.requires_arc = true
   s.source_files = 'ISHTTPOperationMockifier/**/*.{h,m}'
+  s.dependency 'ISHTTPOperation', :git => "https://github.com/ishkawa/ISHTTPOperation.git"
   s.license      = {
     :type => 'MIT',
     :text => <<-LICENSE
