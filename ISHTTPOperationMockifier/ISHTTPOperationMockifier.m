@@ -15,25 +15,51 @@ static void ISSwizzleInstanceMethod(Class c, SEL original, SEL alternative)
     }
 }
 
-static char *const ISHTTPOperationMockStatusCodeKey = "ISHTTPOperationMockStatusCodeKey";
-static char *const ISHTTPOperationMockObjectKey     = "ISHTTPOperationMockObjectKey";
-static char *const ISHTTPOperationMockErrorKey      = "ISHTTPOperationMockErrorKey";
+static NSURL *ISStripURL(NSURL *URL)
+{
+    if (![URL.query length]) {
+        return URL;
+    }
+    NSString *query = [@"?" stringByAppendingString:URL.query];
+    NSString *string = [URL.absoluteString stringByReplacingOccurrencesOfString:query withString:@""];
+    
+    return [NSURL URLWithString:string];
+}
+
+static NSMutableDictionary *ISMockDictionary()
+{
+    static NSMutableDictionary *dictionary = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        dictionary = [NSMutableDictionary dictionary];
+    });
+    
+    return dictionary;
+}
 
 @implementation ISHTTPOperation (Mock)
 
-- (NSInteger)statusCode
++ (void)load
 {
-    return [objc_getAssociatedObject([self class], ISHTTPOperationMockStatusCodeKey) integerValue];
+    @autoreleasepool {
+        ISSwizzleInstanceMethod([self class], @selector(main), @selector(_main));
+    }
 }
-
 
 - (void)_main
 {
+    NSURL *URL = ISStripURL(self.request.URL);
+    NSMutableDictionary *dictionary = ISMockDictionary();
+    ISHTTPOperationMockifier *mockifier = [[dictionary objectForKey:URL] nonretainedObjectValue];
+    if (!mockifier) {
+        [self _main];
+        return;
+    }
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        Class class = [ISHTTPOperation class];
-        NSInteger statusCode = [objc_getAssociatedObject(class, ISHTTPOperationMockStatusCodeKey) integerValue];
-        id object = objc_getAssociatedObject(class, ISHTTPOperationMockObjectKey);
-        NSError *error = objc_getAssociatedObject(class, ISHTTPOperationMockErrorKey);
+        NSInteger statusCode = mockifier.statusCode;
+        id object = mockifier.object;
+        NSError *error = mockifier.error;
         
         NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:self.request.URL
                                                                   statusCode:statusCode
@@ -56,11 +82,12 @@ static char *const ISHTTPOperationMockErrorKey      = "ISHTTPOperationMockErrorK
 
 @implementation ISHTTPOperationMockifier
 
-- (id)init
+- (id)initWithURL:(NSURL *)URL
 {
     self = [super init];
     if (self) {
-        self.statusCode = 200;
+        _URL = URL;
+        _statusCode = 200;
     }
     return self;
 }
@@ -78,12 +105,11 @@ static char *const ISHTTPOperationMockErrorKey      = "ISHTTPOperationMockErrorK
         return;
     }
     
-    Class class = [ISHTTPOperation class];
-    objc_setAssociatedObject(class, ISHTTPOperationMockStatusCodeKey, @(self.statusCode), OBJC_ASSOCIATION_RETAIN);
-    objc_setAssociatedObject(class, ISHTTPOperationMockObjectKey, self.object, OBJC_ASSOCIATION_RETAIN);
-    objc_setAssociatedObject(class, ISHTTPOperationMockErrorKey, self.error, OBJC_ASSOCIATION_RETAIN);
+    NSURL *URL = ISStripURL(self.URL);
+    NSMutableDictionary *dictionary = ISMockDictionary();
+    NSValue *value = [NSValue valueWithNonretainedObject:self];
+    [dictionary setObject:value forKey:URL];
     
-    ISSwizzleInstanceMethod(class, @selector(main), @selector(_main));
     self.mockified = YES;
 }
 
@@ -93,12 +119,10 @@ static char *const ISHTTPOperationMockErrorKey      = "ISHTTPOperationMockErrorK
         return;
     }
     
-    Class class = [ISHTTPOperation class];
-    objc_setAssociatedObject(class, ISHTTPOperationMockStatusCodeKey, nil, OBJC_ASSOCIATION_RETAIN);
-    objc_setAssociatedObject(class, ISHTTPOperationMockObjectKey, nil, OBJC_ASSOCIATION_RETAIN);
-    objc_setAssociatedObject(class, ISHTTPOperationMockErrorKey, nil, OBJC_ASSOCIATION_RETAIN);
+    NSURL *URL = ISStripURL(self.URL);
+    NSMutableDictionary *dictionary = ISMockDictionary();
+    [dictionary removeObjectForKey:URL];
     
-    ISSwizzleInstanceMethod(class, @selector(main), @selector(_main));
     self.mockified = NO;
 }
 
