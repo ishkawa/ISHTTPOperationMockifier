@@ -2,7 +2,7 @@ mockify ISHTTPOperation.
 
 ## Requirements
 
-- iOS 4.0 or later
+- iOS 4.3 or later
 - ARC
 
 ## Example
@@ -14,7 +14,8 @@ mockify ISHTTPOperation.
                                   @"fugaKey": @"fugaValue",
                                   @"piyoKey": @"piyoValue", };
     
-    ISHTTPOperationMockifier *mockfier = [[ISHTTPOperationMockifier alloc] init];
+    NSURL *URL = [NSURL URLWithString:@"http://github.com"];
+    ISHTTPOperationMockifier *mockfier = [[ISHTTPOperationMockifier alloc] initWithURL:URL];
     mockfier.statusCode = 200;
     mockfier.object = dictionary;
     mockfier.error = nil;
@@ -37,7 +38,8 @@ mockify ISHTTPOperation.
                                              code:-1234
                                          userInfo:nil];
     
-    ISHTTPOperationMockifier *mockfier = [[ISHTTPOperationMockifier alloc] init];
+    NSURL *URL = [NSURL URLWithString:@"http://github.com"];
+    ISHTTPOperationMockifier *mockfier = [[ISHTTPOperationMockifier alloc] initWithURL:URL];
     mockfier.statusCode = 0;
     mockfier.object = nil;
     mockfier.error = mockError;
