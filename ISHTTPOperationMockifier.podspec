@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name         = "ISHTTPOperationMockifier"
-  s.version      = "0.0.2"
+  s.version      = "0.0.3"
   s.summary      = "mockifies ISHTTPOperation."
   s.homepage     = "https://github.com/ishkawa/ISHTTPOperationMockifier"
   s.author       = { "Yosuke Ishikawa" => "y@ishkawa.org" }
-  s.source       = { :git => "https://github.com/ishkawa/ISHTTPOperationMockifier.git", :tag => "0.0.2" }
-  s.platform     = :ios, '4.0'
+  s.source       = { :git => "https://github.com/ishkawa/ISHTTPOperationMockifier.git", :tag => "0.0.3" }
+  s.platform     = :ios, '4.3'
   s.requires_arc = true
   s.source_files = 'ISHTTPOperationMockifier/**/*.{h,m}'
   s.license      = {
